@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cash Discount Processing Savings Calculator | TMS Solutions Group</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #FAFAF7;
+      --gold: #B8860B;
+      --gold-light: #D4A017;
+      --red: #C0392B;
+      --yellow: #E67E22;
+      --green: #27AE60;
+      --dark: #1a1a1a;
+      --mid: #555;
+      --light: #888;
+      --border: #e0ddd6;
+      --card: #ffffff;
+      --blue: #2980B9;
+    }
+    body { background: var(--cream); font-family: 'Inter', sans-serif; color: var(--dark); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* HEADER */
+    header { background: var(--dark); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+    header .brand { color: #fff; font-family: 'Playfair Display', serif; font-size: 1.1rem; letter-spacing: 0.02em; }
+    header .brand span { color: var(--gold-light); }
+    header .contact { color: #ccc; font-size: 0.75rem; text-align: right; line-height: 1.5; }
+
+    /* MAIN WRAPPER */
+    main { flex: 1; max-width: 820px; margin: 0 auto; width: 100%; padding: 32px 20px 48px; }
+
+    /* LANDING PAGE */
+    #landing-page { display: block; }
+    #results-page { display: none; }
+
+    .pill { display: inline-block; background: var(--gold); color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 14px; border-radius: 999px; margin-bottom: 18px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; font-weight: 700; line-height: 1.25; color: var(--dark); margin-bottom: 14px; }
+    .subtitle { color: var(--mid); font-size: 1rem; margin-bottom: 24px; line-height: 1.6; }
+    .benefits { list-style: none; margin-bottom: 32px; }
+    .benefits li { padding: 7px 0; color: var(--mid); font-size: 0.95rem; display: flex; align-items: flex-start; gap: 10px; }
+    .benefits li::before { content: ''; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+
+    /* FORM */
+    .form-card { background: var(--card); border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); padding: 32px; margin-bottom: 20px; }
+    .form-card h2 { font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 22px; color: var(--dark); }
+    .form-group { margin-bottom: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px; }
+    input[type="text"], input[type="number"], select {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 0.97rem; font-family: 'Inter', sans-serif; background: #fff; color: var(--dark);
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus { outline: none; border-color: var(--gold); }
+    .input-prefix { position: relative; }
+    .input-prefix span { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--light); font-size: 0.97rem; pointer-events: none; }
+    .input-prefix input { padding-left: 26px; }
+    .input-suffix { position: relative; }
+    .input-suffix span { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: var(--light); font-size: 0.97rem; pointer-events: none; }
+    .input-suffix input { padding-right: 26px; }
+
+    /* SLIDER */
+    .slider-wrapper { display: flex; align-items: center; gap: 14px; }
+    input[type="range"] { -webkit-appearance: none; flex: 1; height: 6px; background: var(--border); border-radius: 3px; outline: none; cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--gold); border-radius: 50%; cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.2); }
+    .slider-value { background: var(--gold); color: #fff; font-weight: 700; font-size: 0.9rem; padding: 4px 12px; border-radius: 999px; min-width: 52px; text-align: center; }
+    .slider-labels { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--light); margin-top: 5px; }
+
+    .form-note { font-size: 0.78rem; color: var(--light); margin-top: 5px; }
+    .optional-tag { font-size: 0.7rem; color: var(--light); font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 6px; }
+
+    .cta-btn { width: 100%; padding: 15px; background: var(--gold); border: none; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; color: #1a1a1a; cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.01em; margin-top: 4px; }
+    .cta-btn:hover { background: var(--gold-light); }
+    .cta-btn:active { transform: scale(0.99); }
+    .no-signup { text-align: center; font-size: 0.8rem; color: var(--light); margin-top: 12px; }
+
+    /* RESULTS PAGE */
+    .score-banner { border-radius: 12px; padding: 22px 28px; margin-bottom: 28px; }
+    .score-banner.green { background: var(--green); }
+    .score-banner.yellow { background: var(--yellow); }
+    .score-banner.red { background: var(--red); }
+    .score-banner h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 6px; color: #fff; }
+    .score-banner p { font-size: 0.92rem; color: rgba(255,255,255,0.9); line-height: 1.5; }
+
+    .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+    .metric-box { background: var(--card); border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 20px 16px; text-align: center; }
+    .metric-box .metric-label { font-size: 0.72rem; font-weight: 600; color: var(--light); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+    .metric-box .metric-value { font-family: 'Playfair Display', serif; font-size: 1.55rem; font-weight: 700; color: var(--dark); }
+    .metric-box .metric-value.green { color: var(--green); }
+    .metric-box .metric-value.red { color: var(--red); }
+    .metric-box .metric-sub { font-size: 0.75rem; color: var(--light); margin-top: 4px; }
+
+    .results-card { background: var(--card); border-radius: 14px; box-shadow: 0 2px 14px rgba(0,0,0,0.06); padding: 24px 28px; margin-bottom: 22px; }
+    .results-card h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 16px; color: var(--dark); border-bottom: 1.5px solid var(--border); padding-bottom: 10px; }
+
+    /* SCENARIO COMPARISON TABLE */
+    .scenario-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .scenario-table thead tr th { padding: 10px 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .scenario-table thead tr th:first-child { background: var(--dark); color: #fff; border-radius: 6px 0 0 0; text-align: left; }
+    .scenario-table thead tr th.col-a { background: var(--blue); color: #fff; text-align: left; }
+    .scenario-table thead tr th.col-b { background: var(--green); color: #fff; border-radius: 0 6px 0 0; text-align: left; }
+    .scenario-table tbody tr td { padding: 9px 12px; border-bottom: 1px solid #f0ede6; vertical-align: top; }
+    .scenario-table tbody tr td:first-child { font-weight: 600; color: var(--dark); background: #fafaf7; }
+    .scenario-table tbody tr:last-child td { border-bottom: none; }
+    .scenario-table tbody tr.highlight-row td { background: #eafaf1; font-weight: 700; }
+    .scenario-table tbody tr.highlight-row td:first-child { background: #d4edda; }
+    .val-green { color: var(--green); font-weight: 700; }
+    .val-red { color: var(--red); font-weight: 700; }
+
+    /* BENCHMARK */
+    .benchmark-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid #f0ede6; font-size: 0.93rem; }
+    .benchmark-row:first-child { border-top: none; padding-top: 0; }
+    .badge { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+    .badge.above { background: #fdf3f2; color: var(--red); }
+    .badge.below { background: #eafaf1; color: var(--green); }
+    .badge.at { background: #f0ede6; color: var(--mid); }
+
+    /* EXPLANATION GRID */
+    .explain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+    .explain-card { background: var(--card); border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 20px; }
+    .explain-card h4 { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid; }
+    .explain-card.card-a h4 { color: var(--blue); border-color: var(--blue); }
+    .explain-card.card-b h4 { color: var(--green); border-color: var(--green); }
+    .explain-card p { font-size: 0.88rem; color: var(--mid); line-height: 1.65; }
+
+    /* RECS */
+    .recs-list { list-style: none; }
+    .recs-list li { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-top: 1px solid #f0ede6; }
+    .recs-list li:first-child { border-top: none; padding-top: 0; }
+    .rec-num { background: var(--gold); color: #fff; font-weight: 700; font-size: 0.8rem; min-width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .rec-text { font-size: 0.91rem; color: var(--mid); line-height: 1.55; }
+
+    /* MINI METRICS */
+    .mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 22px; }
+    .mini-box { background: var(--card); border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 14px 12px; text-align: center; }
+    .mini-label { font-size: 0.68rem; font-weight: 600; color: var(--light); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .mini-value { font-size: 1.05rem; font-weight: 700; color: var(--dark); font-family: 'Playfair Display', serif; }
+
+    .pdf-btn { width: 100%; padding: 14px; background: var(--dark); border: none; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700; color: #fff; cursor: pointer; transition: background 0.2s; letter-spacing: 0.01em; margin-top: 8px; }
+    .pdf-btn:hover { background: #333; }
+    .back-link { display: block; text-align: center; margin-top: 16px; font-size: 0.84rem; color: var(--light); cursor: pointer; text-decoration: underline; }
+    .back-link:hover { color: var(--gold); }
+
+    /* CTA CARD */
+    .cta-card { background: var(--dark); border-radius: 14px; padding: 28px; text-align: center; margin-bottom: 22px; color: #fff; }
+    .cta-card h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 8px; }
+    .cta-card p { font-size: 0.9rem; color: #bbb; margin-bottom: 12px; }
+    .cta-card .cta-contact { font-weight: 700; color: var(--gold-light); font-size: 0.95rem; }
+
+    /* FOOTER */
+    footer { background: var(--dark); color: #aaa; text-align: center; padding: 16px; font-size: 0.75rem; line-height: 1.7; }
+    footer a { color: var(--gold-light); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 1.6rem; }
+      .metrics-row, .mini-grid { grid-template-columns: 1fr 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .explain-grid { grid-template-columns: 1fr; }
+      .form-card, .results-card { padding: 20px 16px; }
+    }
+    @media (max-width: 420px) {
+      .metrics-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">TMS <span>Solutions Group</span></div>
+  <div class="contact">tom@tms-solutions-group.com | tms-solutions-group.com | 386-387-8620</div>
+</header>
+
+<main>
+
+  <!-- ======= LANDING PAGE ======= -->
+  <div id="landing-page">
+    <div style="margin-bottom: 10px;"><span class="pill">Free Calculator</span></div>
+    <h1>Cash Discount Processing<br>Savings Calculator</h1>
+    <p class="subtitle">Compare two proven strategies side by side and see exactly how much your business could save by eliminating card processing fees.</p>
+    <ul class="benefits">
+      <li>See your current annual fees in plain dollars and compare two discount scenarios</li>
+      <li>Understand the difference between Cash Discount Only vs. Full Dual Pricing</li>
+      <li>Get personalized recommendations based on your business type and volume</li>
+    </ul>
+
+    <div class="form-card">
+      <h2>Enter Your Business Details</h2>
+
+      <div class="form-group">
+        <label>Business Name <span class="optional-tag">(optional)</span></label>
+        <input type="text" id="businessName" placeholder="e.g. Main Street Hardware" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Average Monthly Card Sales Volume</label>
+          <div class="input-prefix">
+            <span>$</span>
+            <input type="number" id="monthlyVolume" placeholder="50000" min="0" step="100" />
+          </div>
+          <div class="form-note">Total card charges per month</div>
+        </div>
+        <div class="form-group">
+          <label>Current Processing Rate</label>
+          <div class="input-suffix">
+            <span>%</span>
+            <input type="number" id="processingRate" value="2.75" min="0.5" max="5" step="0.01" />
+          </div>
+          <div class="form-note">Your effective blended rate</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Estimated % of Customers Who Would Pay Cash</label>
+        <div class="slider-wrapper">
+          <input type="range" id="cashPercent" min="10" max="60" value="30" step="1" oninput="document.getElementById('cashPercentVal').textContent=this.value+'%'" />
+          <div class="slider-value" id="cashPercentVal">30%</div>
+        </div>
+        <div class="slider-labels"><span>10%</span><span>35%</span><span>60%</span></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Average Transaction Size</label>
+          <div class="input-prefix">
+            <span>$</span>
+            <input type="number" id="avgTransaction" placeholder="45" min="1" step="1" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Business Type</label>
+          <select id="businessType">
+            <option value="retail">Retail</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="service">Service Business</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="cta-btn" onclick="calculate()">Calculate My Savings &rarr;</button>
+      <p class="no-signup">No sign-up required. Results shown instantly.</p>
+    </div>
+  </div>
+
+  <!-- ======= RESULTS PAGE ======= -->
+  <div id="results-page">
+
+    <!-- Banner -->
+    <div id="score-banner" class="score-banner green">
+      <h2 id="banner-headline">Strong Savings Opportunity Identified</h2>
+      <p id="banner-sub"></p>
+    </div>
+
+    <!-- 3 Metric Boxes -->
+    <div class="metrics-row">
+      <div class="metric-box">
+        <div class="metric-label">Current Annual Fees</div>
+        <div class="metric-value red" id="m-current-fees">$0</div>
+        <div class="metric-sub">What you pay now</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Scenario A Net Savings</div>
+        <div class="metric-value green" id="m-savings-a">$0</div>
+        <div class="metric-sub">Cash Discount Only</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Scenario B Max Savings</div>
+        <div class="metric-value green" id="m-savings-b">$0</div>
+        <div class="metric-sub">Full Dual Pricing</div>
+      </div>
+    </div>
+
+    <!-- Additional Insights -->
+    <div class="mini-grid">
+      <div class="mini-box">
+        <div class="mini-label">Per-Transaction Fee</div>
+        <div class="mini-value" id="m-per-tx">-</div>
+      </div>
+      <div class="mini-box">
+        <div class="mini-label">Break-Even Cash %</div>
+        <div class="mini-value" id="m-breakeven">-</div>
+      </div>
+      <div class="mini-box">
+        <div class="mini-label">Program Monthly Cost</div>
+        <div class="mini-value">$39</div>
+      </div>
+      <div class="mini-box">
+        <div class="mini-label">Program Annual Cost</div>
+        <div class="mini-value">$468</div>
+      </div>
+    </div>
+
+    <!-- Side-by-Side Scenario Comparison -->
+    <div class="results-card">
+      <h3>Scenario Comparison</h3>
+      <div style="overflow-x:auto;">
+        <table class="scenario-table">
+          <thead>
+            <tr>
+              <th style="width:32%">Metric</th>
+              <th class="col-a" style="width:34%">Scenario A &mdash; Cash Discount Only</th>
+              <th class="col-b" style="width:34%">Scenario B &mdash; Full Dual Pricing</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Strategy</td>
+              <td>Cash payers get discount; card price unchanged</td>
+              <td>All prices include fee; cash gets the discount</td>
+            </tr>
+            <tr>
+              <td>Monthly Gross Savings</td>
+              <td id="t-monthly-gross-a">-</td>
+              <td id="t-monthly-gross-b">-</td>
+            </tr>
+            <tr>
+              <td>Annual Gross Savings</td>
+              <td id="t-annual-gross-a">-</td>
+              <td id="t-annual-gross-b">-</td>
+            </tr>
+            <tr>
+              <td>Program Cost (annual)</td>
+              <td class="val-red">-$468</td>
+              <td class="val-red">-$468</td>
+            </tr>
+            <tr class="highlight-row">
+              <td>Net Annual Savings</td>
+              <td id="t-net-a">-</td>
+              <td id="t-net-b">-</td>
+            </tr>
+            <tr>
+              <td>Monthly Net Savings</td>
+              <td id="t-monthly-net-a">-</td>
+              <td id="t-monthly-net-b">-</td>
+            </tr>
+            <tr>
+              <td>% of Fees Eliminated</td>
+              <td id="t-pct-a">-</td>
+              <td>100.0%</td>
+            </tr>
+            <tr>
+              <td>Impact on Card Customers</td>
+              <td>No price change; same checkout experience</td>
+              <td>Pay fee built into price; can choose cash to save</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Industry Benchmark -->
+    <div class="results-card">
+      <h3>Industry Benchmark Comparison</h3>
+      <div id="benchmark-content"></div>
+    </div>
+
+    <!-- Plain English Explanations -->
+    <div class="explain-grid">
+      <div class="explain-card card-a">
+        <h4>Scenario A &mdash; Cash Discount Only</h4>
+        <p id="explain-a"></p>
+      </div>
+      <div class="explain-card card-b">
+        <h4>Scenario B &mdash; Full Dual Pricing</h4>
+        <p id="explain-b"></p>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="results-card">
+      <h3>Your Top 3 Recommendations</h3>
+      <ul class="recs-list" id="recommendations"></ul>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-card">
+      <h3>Ready to Stop Paying Processing Fees?</h3>
+      <p>TMS Solutions Group can implement either scenario for your business. Contact us for a free consultation.</p>
+      <div class="cta-contact">tom@tms-solutions-group.com &nbsp;|&nbsp; 386-387-8620</div>
+    </div>
+
+    <button class="pdf-btn" onclick="generatePDF()">Download Full PDF Report</button>
+    <span class="back-link" onclick="goBack()">Recalculate with different numbers</span>
+  </div>
+
+</main>
+
+<footer>
+  tom@tms-solutions-group.com &nbsp;|&nbsp; <a href="https://tms-solutions-group.com">tms-solutions-group.com</a> &nbsp;|&nbsp; 386-387-8620<br>
+  TMS Solutions Group &copy; 2025. For informational purposes only. Not financial advice.
+</footer>
+
+<script>
+  const INDUSTRY_BENCHMARKS = {
+    retail:     { label: 'Retail',           rate: 2.20 },
+    restaurant: { label: 'Restaurant',        rate: 2.50 },
+    service:    { label: 'Service Business',  rate: 2.80 },
+    healthcare: { label: 'Healthcare',        rate: 2.60 },
+    other:      { label: 'Other',             rate: 2.75 }
+  };
+
+  const PROGRAM_COST_MONTHLY = 39;
+  let calcResults = {};
+
+  function fmtD(n) {
+    const abs = Math.abs(n);
+    const s = '$' + abs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return n < 0 ? '-' + s : s;
+  }
+  function fmtDK(n) {
+    if (Math.abs(n) >= 1000) return (n < 0 ? '-' : '') + '$' + (Math.abs(n)/1000).toFixed(1) + 'K';
+    return fmtD(n);
+  }
+  function fmtP(n) { return n.toFixed(1) + '%'; }
+
+  function calculate() {
+    const biz     = document.getElementById('businessName').value.trim();
+    const vol     = parseFloat(document.getElementById('monthlyVolume').value);
+    const ratePct = parseFloat(document.getElementById('processingRate').value);
+    const cashPct = parseInt(document.getElementById('cashPercent').value);
+    const avgTx   = parseFloat(document.getElementById('avgTransaction').value);
+    const bizType = document.getElementById('businessType').value;
+
+    if (!vol || isNaN(vol) || vol <= 0) { alert('Please enter your average monthly card sales volume.'); return; }
+    if (!avgTx || isNaN(avgTx) || avgTx <= 0) { alert('Please enter your average transaction size.'); return; }
+
+    const rateD = ratePct / 100;
+    const cashD = cashPct / 100;
+    const benchmark = INDUSTRY_BENCHMARKS[bizType];
+
+    // --- Core calculations ---
+    const currentMonthly    = vol * rateD;
+    const currentAnnual     = currentMonthly * 12;
+    const programCostAnnual = PROGRAM_COST_MONTHLY * 12; // $468
+
+    // Scenario A - Cash Discount Only
+    const grossSavingsA     = vol * cashD * rateD * 12;
+    const netSavingsA       = grossSavingsA - programCostAnnual;
+    const monthlyGrossA     = grossSavingsA / 12;
+    const monthlyNetA       = netSavingsA / 12;
+    const pctEliminatedA    = (grossSavingsA / currentAnnual) * 100;
+
+    // Scenario B - Full Dual Pricing (all fees eliminated)
+    const grossSavingsB     = currentAnnual;
+    const netSavingsB       = grossSavingsB - programCostAnnual;
+    const monthlyGrossB     = currentMonthly;
+    const monthlyNetB       = netSavingsB / 12;
+
+    // Additional metrics
+    const perTxFee          = rateD * avgTx;
+    const breakEvenPct      = currentAnnual > 0 ? (programCostAnnual / currentAnnual) * 100 : 0;
+    const benchmarkRate     = benchmark.rate;
+    const rateGap           = ratePct - benchmarkRate;
+    const excessAnnualFees  = vol * (rateGap / 100) * 12;
+
+    calcResults = {
+      biz, vol, ratePct, cashPct, avgTx, bizType,
+      currentMonthly, currentAnnual, programCostAnnual,
+      grossSavingsA, netSavingsA, monthlyGrossA, monthlyNetA, pctEliminatedA,
+      grossSavingsB, netSavingsB, monthlyGrossB, monthlyNetB,
+      perTxFee, breakEvenPct, benchmark, benchmarkRate, rateGap, excessAnnualFees
+    };
+
+    // --- Banner (based on Scenario B) ---
+    const banner = document.getElementById('score-banner');
+    const bizDisplay = biz || 'Your Business';
+    if (netSavingsB > 2400) {
+      banner.className = 'score-banner green';
+      document.getElementById('banner-headline').textContent = 'Strong Savings Opportunity Identified';
+      document.getElementById('banner-sub').textContent = bizDisplay + ' could save up to ' + fmtD(netSavingsB) + ' annually with full dual pricing -- ' + fmtD(monthlyNetB) + ' every month back in your pocket.';
+    } else if (netSavingsB >= 600) {
+      banner.className = 'score-banner yellow';
+      document.getElementById('banner-headline').textContent = 'Moderate Savings Opportunity';
+      document.getElementById('banner-sub').textContent = bizDisplay + ' could save up to ' + fmtD(netSavingsB) + ' annually. A cash discount program delivers meaningful returns at your current volume.';
+    } else {
+      banner.className = 'score-banner red';
+      document.getElementById('banner-headline').textContent = 'Limited Savings at Current Volume';
+      document.getElementById('banner-sub').textContent = 'Based on your inputs, current savings potential is limited. Growing card volume or raising your average transaction size will improve this significantly.';
+    }
+
+    // --- Metric Boxes ---
+    document.getElementById('m-current-fees').textContent = fmtDK(currentAnnual);
+    const savAEl = document.getElementById('m-savings-a');
+    savAEl.textContent = fmtDK(netSavingsA);
+    savAEl.className = 'metric-value ' + (netSavingsA >= 0 ? 'green' : 'red');
+    const savBEl = document.getElementById('m-savings-b');
+    savBEl.textContent = fmtDK(netSavingsB);
+    savBEl.className = 'metric-value ' + (netSavingsB >= 0 ? 'green' : 'red');
+
+    // --- Mini metrics ---
+    document.getElementById('m-per-tx').textContent = fmtD(perTxFee);
+    document.getElementById('m-breakeven').textContent = fmtP(breakEvenPct);
+
+    // --- Scenario table ---
+    function setVal(id, n, isNet) {
+      const el = document.getElementById(id);
+      el.textContent = fmtD(n);
+      if (isNet) el.className = n >= 0 ? 'val-green' : 'val-red';
+    }
+    setVal('t-monthly-gross-a', monthlyGrossA, false);
+    setVal('t-monthly-gross-b', monthlyGrossB, false);
+    setVal('t-annual-gross-a', grossSavingsA, false);
+    setVal('t-annual-gross-b', grossSavingsB, false);
+    setVal('t-net-a', netSavingsA, true);
+    setVal('t-net-b', netSavingsB, true);
+    setVal('t-monthly-net-a', monthlyNetA, true);
+    setVal('t-monthly-net-b', monthlyNetB, true);
+    document.getElementById('t-pct-a').textContent = fmtP(pctEliminatedA);
+
+    // --- Benchmark ---
+    const aboveBenchmark = rateGap > 0;
+    const benchHTML = `
+      <div class="benchmark-row">
+        <span>Your processing rate</span>
+        <strong>${ratePct.toFixed(2)}%</strong>
+      </div>
+      <div class="benchmark-row">
+        <span>${benchmark.label} industry benchmark</span>
+        <strong>${benchmarkRate.toFixed(2)}%</strong>
+      </div>
+      <div class="benchmark-row">
+        <span>Rate vs. benchmark</span>
+        <span class="badge ${aboveBenchmark ? 'above' : (rateGap < 0 ? 'below' : 'at')}">
+          ${aboveBenchmark ? '+' + rateGap.toFixed(2) + '% above avg' : (rateGap < 0 ? Math.abs(rateGap).toFixed(2) + '% below avg' : 'At benchmark')}
+        </span>
+      </div>
+      <div class="benchmark-row">
+        <span>Excess annual fees vs. benchmark</span>
+        <strong>${aboveBenchmark ? fmtD(excessAnnualFees) + ' extra' : 'N/A -- at or below benchmark'}</strong>
+      </div>
+      ${aboveBenchmark ? `<div class="benchmark-row" style="padding-top:10px;"><span style="font-size:0.85rem;color:var(--mid)">!! Your rate is above the industry average for ${benchmark.label.toLowerCase()} businesses. A cash discount program eliminates this entirely -- consider implementing Scenario B for maximum savings.</span></div>` : ''}
+    `;
+    document.getElementById('benchmark-content').innerHTML = benchHTML;
+
+    // --- Plain English Explanations ---
+    document.getElementById('explain-a').textContent =
+      'In Scenario A, you offer a discount to customers who pay cash while keeping your posted prices the same for card customers. ' +
+      'Based on your estimated ' + cashPct + '% cash adoption, you eliminate ' + fmtP(pctEliminatedA) + ' of current processing fees -- saving ' + fmtD(grossSavingsA) + '/year before program costs, with a net of ' + fmtD(netSavingsA) + '/year after the $39/month program fee.';
+
+    document.getElementById('explain-b').textContent =
+      'In Scenario B, you reprice all goods and services upward by your ' + ratePct.toFixed(2) + '% processing rate, then offer cash customers a discount equal to that amount. ' +
+      'Card customers pay the fee built into the posted price; cash customers save it -- and you keep your full margin on every transaction, completely eliminating all ' + fmtD(currentAnnual) + ' in annual processing fees for a net of ' + fmtD(netSavingsB) + '/year.';
+
+    // --- Recommendations ---
+    const recs = buildRecommendations(calcResults);
+    document.getElementById('recommendations').innerHTML = recs.map((r, i) =>
+      `<li><div class="rec-num">${i+1}</div><div class="rec-text">${r}</div></li>`
+    ).join('');
+
+    document.getElementById('landing-page').style.display = 'none';
+    document.getElementById('results-page').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  function buildRecommendations(r) {
+    const recs = [];
+
+    // 1. Rate vs benchmark
+    if (r.rateGap > 0.3) {
+      recs.push(
+        'Your rate of ' + r.ratePct.toFixed(2) + '% is ' + r.rateGap.toFixed(2) + '% above the ' +
+        r.benchmark.label.toLowerCase() + ' benchmark of ' + r.benchmarkRate.toFixed(2) + '%. ' +
+        'Scenario B (Full Dual Pricing) would eliminate this entire cost -- converting ' + fmtD(r.excessAnnualFees) +
+        ' in excess annual fees into profit.'
+      );
+    } else if (r.rateGap <= 0) {
+      recs.push(
+        'Your rate of ' + r.ratePct.toFixed(2) + '% is at or below the ' + r.benchmark.label.toLowerCase() +
+        ' benchmark of ' + r.benchmarkRate.toFixed(2) + '%. Even at a competitive rate, a cash discount program ' +
+        'transfers the remaining ' + fmtD(r.currentAnnual) + ' in annual fees to your customers instead of your bottom line.'
+      );
+    } else {
+      recs.push(
+        'Your rate of ' + r.ratePct.toFixed(2) + '% is slightly above the ' + r.benchmark.label.toLowerCase() +
+        ' benchmark of ' + r.benchmarkRate.toFixed(2) + '%. Both scenarios deliver positive returns -- Scenario B provides the maximum annual benefit of ' + fmtD(r.netSavingsB) + ' by eliminating fees entirely.'
+      );
+    }
+
+    // 2. Scenario B vs A advantage
+    const bVsA = r.netSavingsB - r.netSavingsA;
+    if (r.netSavingsB > 0 && r.netSavingsA <= 0) {
+      recs.push(
+        'Scenario A does not cover the program cost at your estimated ' + r.cashPct + '% cash adoption -- but Scenario B is profitable regardless of payment mix, because all fees are built into your posted prices. ' +
+        'Scenario B is the recommended approach, delivering ' + fmtD(r.netSavingsB) + ' in net annual savings.'
+      );
+    } else if (bVsA > 1000) {
+      recs.push(
+        'Scenario B delivers ' + fmtD(bVsA) + ' more per year than Scenario A. If your customers can absorb transparent price adjustments -- common in ' +
+        r.benchmark.label.toLowerCase() + ' businesses -- Scenario B is the clear path to maximum fee elimination and strongest ROI.'
+      );
+    } else {
+      recs.push(
+        'Both scenarios generate positive returns. Consider starting with Scenario A (Cash Discount Only) to introduce customers to the program, then migrating to Scenario B for maximum annual savings of ' +
+        fmtD(r.netSavingsB) + ' once the program is established.'
+      );
+    }
+
+    // 3. Break-even / implementation
+    if (r.breakEvenPct < r.cashPct) {
+      recs.push(
+        'Your estimated ' + r.cashPct + '% cash adoption already exceeds the ' + fmtP(r.breakEvenPct) +
+        ' break-even threshold needed to cover the $39/month program cost. The program pays for itself from day one under Scenario A -- making this a low-risk, high-reward implementation for ' +
+        (r.biz || 'your business') + '.'
+      );
+    } else {
+      recs.push(
+        'Under Scenario A you need ' + fmtP(r.breakEvenPct) + ' cash adoption to cover the program cost -- slightly above your ' +
+        r.cashPct + '% estimate. Encourage cash payments with point-of-sale signage and staff training, or go straight to Scenario B which reaches profitability regardless of payment mix.'
+      );
+    }
+
+    return recs.slice(0, 3);
+  }
+
+  function goBack() {
+    document.getElementById('results-page').style.display = 'none';
+    document.getElementById('landing-page').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  // =================== PDF GENERATION ===================
+  function pdfSafe(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/\u2013/g, '-')
+      .replace(/\u2014/g, '-')
+      .replace(/\u00B7/g, '|')
+      .replace(/\u2019/g, "'")
+      .replace(/\u2018/g, "'")
+      .replace(/\u201C/g, '"')
+      .replace(/\u201D/g, '"')
+      .replace(/[^\x00-\x7F]/g, '');
+  }
+
+  function generatePDF() {
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+
+      const CREAM   = [250, 250, 247];
+      const DARK    = [26, 26, 26];
+      const GOLD    = [184, 134, 11];
+      const GREEN   = [39, 174, 96];
+      const RED     = [192, 57, 43];
+      const YELLOW  = [230, 126, 34];
+      const MID     = [85, 85, 85];
+      const LIGHT   = [150, 150, 150];
+      const WHITE   = [255, 255, 255];
+      const BORDER  = [220, 215, 205];
+      const BLUE    = [41, 128, 185];
+      const LGRAY   = [240, 240, 240];
+
+      const r = calcResults;
+      const bizDisplay = r.biz ? pdfSafe(r.biz) : 'Your Business';
+      const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      const PW = 612;
+      const PH = 792;
+      const ML = 48;
+      const MR = PW - 48;
+      const CW = PW - 96;
+
+      function drawPageBg() {
+        doc.setFillColor(...CREAM);
+        doc.rect(0, 0, PW, PH, 'F');
+      }
+
+      function drawHeader(title) {
+        doc.setFillColor(...DARK);
+        doc.rect(0, 0, PW, 54, 'F');
+        doc.setTextColor(...WHITE);
+        doc.setFont('times', 'bold');
+        doc.setFontSize(15);
+        doc.text(pdfSafe('TMS Solutions Group'), ML, 32);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(200, 200, 200);
+        doc.text(pdfSafe('tom@tms-solutions-group.com  |  tms-solutions-group.com  |  386-387-8620'), MR, 32, { align: 'right' });
+        doc.setTextColor(...WHITE);
+        doc.setFont('times', 'italic');
+        doc.setFontSize(9.5);
+        doc.text(pdfSafe(title), ML, 46);
+      }
+
+      function drawFooter(pageNum) {
+        doc.setFillColor(...DARK);
+        doc.rect(0, PH - 34, PW, 34, 'F');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(180, 180, 180);
+        doc.text(pdfSafe('tom@tms-solutions-group.com  |  tms-solutions-group.com  |  386-387-8620'), PW / 2, PH - 14, { align: 'center' });
+        doc.text(pdfSafe('Page ' + pageNum + ' of 2'), MR, PH - 14, { align: 'right' });
+      }
+
+      function lineH(y, color) {
+        doc.setDrawColor(...(color || BORDER));
+        doc.setLineWidth(0.5);
+        doc.line(ML, y, MR, y);
+      }
+
+      function sectionTitle(label, y) {
+        doc.setFont('times', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(...DARK);
+        doc.text(pdfSafe(label), ML, y);
+        doc.setDrawColor(...GOLD);
+        doc.setLineWidth(1);
+        doc.line(ML, y + 3, ML + 60, y + 3);
+        return y + 16;
+      }
+
+      // ===========================
+      // PAGE 1
+      // ===========================
+      drawPageBg();
+      drawHeader('Cash Discount Processing Savings Calculator');
+
+      let y = 72;
+
+      // Report title + subtitle
+      doc.setFont('times', 'bold');
+      doc.setFontSize(21);
+      doc.setTextColor(...DARK);
+      doc.text(pdfSafe('Cash Discount Savings Report'), ML, y);
+      y += 16;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      doc.setTextColor(...MID);
+      doc.text(pdfSafe(bizDisplay + '  |  ' + r.benchmark.label + '  |  ' + pdfSafe(today)), ML, y);
+      y += 20;
+
+      // Score banner
+      const netB = r.netSavingsB;
+      let bannerColor = netB > 2400 ? GREEN : (netB >= 600 ? YELLOW : RED);
+      let bannerText = netB > 2400 ? 'STRONG SAVINGS OPPORTUNITY' : (netB >= 600 ? 'MODERATE SAVINGS OPPORTUNITY' : 'LIMITED SAVINGS AT CURRENT VOLUME');
+      let bannerSub  = netB > 2400
+        ? pdfSafe(bizDisplay + ' could save up to ' + fmtD(netB) + ' annually with full dual pricing -- ' + fmtD(r.monthlyNetB) + '/month back in your pocket.')
+        : (netB >= 600
+          ? pdfSafe('Estimated Scenario B net savings: ' + fmtD(netB) + '/yr. A cash discount program delivers meaningful returns.')
+          : pdfSafe('Based on current volume, savings potential is limited. Growing card volume or rate changes will improve this.'));
+
+      doc.setFillColor(...bannerColor);
+      doc.roundedRect(ML, y, CW, 42, 4, 4, 'F');
+      doc.setTextColor(...WHITE);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.text(pdfSafe(bannerText), ML + 14, y + 13);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      doc.text(bannerSub, ML + 14, y + 28);
+      y += 56;
+
+      // 3 Metric Boxes
+      const boxW = (CW - 16) / 3;
+      const mBoxes = [
+        { label: 'CURRENT ANNUAL FEES',   value: pdfSafe(fmtD(r.currentAnnual)),  color: RED },
+        { label: 'SCENARIO A NET SAVINGS', value: pdfSafe(fmtD(r.netSavingsA)),    color: r.netSavingsA >= 0 ? GREEN : RED },
+        { label: 'SCENARIO B MAX SAVINGS', value: pdfSafe(fmtD(r.netSavingsB)),    color: r.netSavingsB >= 0 ? GREEN : RED }
+      ];
+      mBoxes.forEach((m, i) => {
+        const bx = ML + i * (boxW + 8);
+        doc.setFillColor(...WHITE);
+        doc.roundedRect(bx, y, boxW, 54, 4, 4, 'F');
+        doc.setDrawColor(...BORDER);
+        doc.setLineWidth(0.5);
+        doc.roundedRect(bx, y, boxW, 54, 4, 4, 'S');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(6.5);
+        doc.setTextColor(...LIGHT);
+        doc.text(pdfSafe(m.label), bx + boxW / 2, y + 13, { align: 'center' });
+        doc.setFont('times', 'bold');
+        doc.setFontSize(17);
+        doc.setTextColor(...m.color);
+        doc.text(m.value, bx + boxW / 2, y + 38, { align: 'center' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(...LIGHT);
+        const subs = ['What you pay now', 'Cash Discount Only', 'Full Dual Pricing'];
+        doc.text(pdfSafe(subs[i]), bx + boxW / 2, y + 49, { align: 'center' });
+      });
+      y += 68;
+
+      // Scenario Comparison Table
+      y = sectionTitle('Scenario Comparison', y);
+
+      // Table header
+      const c1 = ML;
+      const c2 = ML + CW * 0.32;
+      const c3 = ML + CW * 0.66;
+      const cw1 = CW * 0.32;
+      const cw2 = CW * 0.34;
+      const cw3 = CW * 0.34;
+
+      doc.setFillColor(...DARK);
+      doc.rect(c1, y, cw1, 18, 'F');
+      doc.setFillColor(...BLUE);
+      doc.rect(c2, y, cw2, 18, 'F');
+      doc.setFillColor(...GREEN);
+      doc.rect(c3, y, cw3, 18, 'F');
+      doc.setTextColor(...WHITE);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.text(pdfSafe('Metric'), c1 + 5, y + 12);
+      doc.text(pdfSafe('Scenario A -- Cash Discount Only'), c2 + 5, y + 12);
+      doc.text(pdfSafe('Scenario B -- Full Dual Pricing'), c3 + 5, y + 12);
+      y += 18;
+
+      const tRows = [
+        { label: 'Strategy', a: 'Cash payers get discount; card price unchanged', b: 'All prices include fee; cash gets discount' },
+        { label: 'Monthly Gross Savings', a: pdfSafe(fmtD(r.monthlyGrossA)), b: pdfSafe(fmtD(r.monthlyGrossB)) },
+        { label: 'Annual Gross Savings',  a: pdfSafe(fmtD(r.grossSavingsA)), b: pdfSafe(fmtD(r.grossSavingsB)) },
+        { label: 'Program Cost (annual)', a: '-$468.00', b: '-$468.00', redA: true, redB: true },
+        { label: 'Net Annual Savings',    a: pdfSafe(fmtD(r.netSavingsA)), b: pdfSafe(fmtD(r.netSavingsB)), highlight: true,
+          colorA: r.netSavingsA >= 0 ? GREEN : RED, colorB: r.netSavingsB >= 0 ? GREEN : RED },
+        { label: 'Monthly Net Savings',   a: pdfSafe(fmtD(r.monthlyNetA)), b: pdfSafe(fmtD(r.monthlyNetB)),
+          colorA: r.monthlyNetA >= 0 ? GREEN : RED, colorB: r.monthlyNetB >= 0 ? GREEN : RED },
+        { label: '% of Fees Eliminated', a: pdfSafe(fmtP(r.pctEliminatedA)), b: '100.0%' },
+        { label: 'Impact on Card Customers', a: 'No price change', b: 'Fee built into posted price' }
+      ];
+
+      tRows.forEach((row, i) => {
+        const rowH = 16;
+        const bg = row.highlight ? [232, 250, 238] : (i % 2 === 0 ? WHITE : [248, 248, 245]);
+        doc.setFillColor(...bg);
+        doc.rect(c1, y, CW, rowH, 'F');
+
+        if (i < tRows.length - 1) {
+          doc.setDrawColor(...LGRAY);
+          doc.setLineWidth(0.3);
+          doc.line(c1, y + rowH, c1 + CW, y + rowH);
+        }
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(...DARK);
+        const labelLines = doc.splitTextToSize(pdfSafe(row.label), cw1 - 10);
+        doc.text(labelLines, c1 + 5, y + 11);
+
+        const colAColor = row.redA ? RED : (row.colorA || DARK);
+        const colBColor = row.redB ? RED : (row.colorB || DARK);
+
+        doc.setFont('helvetica', row.highlight ? 'bold' : 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(...colAColor);
+        const aLines = doc.splitTextToSize(pdfSafe(row.a), cw2 - 10);
+        doc.text(aLines, c2 + 5, y + 11);
+
+        doc.setTextColor(...colBColor);
+        const bLines = doc.splitTextToSize(pdfSafe(row.b), cw3 - 10);
+        doc.text(bLines, c3 + 5, y + 11);
+
+        doc.setTextColor(...DARK);
+        y += rowH;
+      });
+      y += 14;
+
+      // Industry Benchmark
+      y = sectionTitle('Industry Benchmark Comparison', y);
+
+      const benchRows2 = [
+        { label: 'Your Processing Rate', val: pdfSafe(r.ratePct.toFixed(2) + '%'), valColor: DARK },
+        { label: r.benchmark.label + ' Industry Benchmark', val: pdfSafe(r.benchmarkRate.toFixed(2) + '%'), valColor: DARK },
+        { label: 'Rate vs. Benchmark', val: pdfSafe(r.rateGap > 0 ? '+' + r.rateGap.toFixed(2) + '% above avg' : (r.rateGap < 0 ? Math.abs(r.rateGap).toFixed(2) + '% below avg' : 'At benchmark')), valColor: r.rateGap > 0 ? RED : (r.rateGap < 0 ? GREEN : MID) },
+        { label: 'Excess Annual Fees vs. Benchmark', val: pdfSafe(r.rateGap > 0 ? fmtD(r.excessAnnualFees) + ' extra' : 'N/A -- at or below benchmark'), valColor: r.rateGap > 0 ? RED : DARK }
+      ];
+
+      benchRows2.forEach((br, i) => {
+        doc.setFillColor(...(i % 2 === 0 ? WHITE : [248, 248, 245]));
+        doc.rect(ML, y, CW, 15, 'F');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...MID);
+        doc.text(pdfSafe(br.label), ML + 5, y + 10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...br.valColor);
+        doc.text(br.val, MR - 5, y + 10, { align: 'right' });
+        doc.setTextColor(...DARK);
+        doc.setDrawColor(...LGRAY);
+        doc.setLineWidth(0.3);
+        doc.line(ML, y + 15, MR, y + 15);
+        y += 15;
+      });
+      y += 12;
+
+      // Recommendations
+      y = sectionTitle('Top 3 Recommendations', y);
+      const recs = buildRecommendations(r);
+      recs.forEach((rec, i) => {
+        doc.setFillColor(...GOLD);
+        doc.circle(ML + 7, y + 6, 7, 'F');
+        doc.setTextColor(...WHITE);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.text(pdfSafe(String(i + 1)), ML + 7, y + 8.5, { align: 'center' });
+
+        doc.setTextColor(...MID);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        const lines = doc.splitTextToSize(pdfSafe(rec), CW - 22);
+        doc.text(lines, ML + 18, y + 7.5);
+        y += lines.length * 11.5 + 6;
+      });
+
+      drawFooter(1);
+
+      // ===========================
+      // PAGE 2
+      // ===========================
+      doc.addPage();
+      drawPageBg();
+      drawHeader('Cash Discount Calculator -- Methodology & Disclosures');
+
+      y = 72;
+
+      // How each scenario works
+      y = sectionTitle('How Each Scenario Works', y);
+
+      // Scenario A block
+      doc.setFillColor(...BLUE);
+      doc.rect(ML, y, CW, 16, 'F');
+      doc.setTextColor(...WHITE);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.text(pdfSafe('Scenario A -- Cash Discount Only (Partial Adoption)'), ML + 8, y + 11);
+      y += 20;
+
+      const explainAText = pdfSafe(
+        'In Scenario A, the business offers a discount to customers who pay cash while keeping posted prices the same for card customers. ' +
+        'Only the fraction of transactions where customers choose cash generate savings. ' +
+        'Based on ' + bizDisplay + "'s estimated " + r.cashPct + '% cash adoption rate, this eliminates ' + fmtP(r.pctEliminatedA) + ' of current processing fees, ' +
+        'generating ' + fmtD(r.grossSavingsA) + ' in gross annual savings. ' +
+        'After the program cost of $468/year ($39/month), net annual savings are ' + fmtD(r.netSavingsA) + '. ' +
+        'This approach requires no price changes on your menu or shelf tags and is the easiest way to introduce the program to customers.'
+      );
+      doc.setTextColor(...MID);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      const linesA = doc.splitTextToSize(explainAText, CW);
+      doc.text(linesA, ML, y);
+      y += linesA.length * 11.5 + 10;
+
+      // Scenario B block
+      doc.setFillColor(...GREEN);
+      doc.rect(ML, y, CW, 16, 'F');
+      doc.setTextColor(...WHITE);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.text(pdfSafe('Scenario B -- Full Dual Pricing (Maximum Savings)'), ML + 8, y + 11);
+      y += 20;
+
+      const explainBText = pdfSafe(
+        'In Scenario B, the business reprices all goods and services upward by the processing rate (' + r.ratePct.toFixed(2) + '%), ' +
+        'then offers cash-paying customers a discount equal to that amount. ' +
+        'Card customers pay the fee built into the posted price. Cash customers receive the posted discount. ' +
+        'The merchant keeps their full margin on every transaction regardless of payment method, ' +
+        'completely eliminating all ' + fmtD(r.currentAnnual) + ' in annual processing fees. ' +
+        'Net annual savings after the $468 program cost are ' + fmtD(r.netSavingsB) + '. ' +
+        'This is the maximum savings scenario and is fully compliant with card network rules when proper signage and disclosure are in place.'
+      );
+      doc.setTextColor(...MID);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      const linesB = doc.splitTextToSize(explainBText, CW);
+      doc.text(linesB, ML, y);
+      y += linesB.length * 11.5 + 14;
+
+      // Inputs & Assumptions
+      y = sectionTitle('Inputs & Assumptions Used', y);
+
+      const inputRows = [
+        ['Business Name',             pdfSafe(bizDisplay)],
+        ['Business Type',             pdfSafe(r.benchmark.label)],
+        ['Monthly Card Sales Volume', pdfSafe(fmtD(r.vol))],
+        ['Processing Rate',           pdfSafe(r.ratePct.toFixed(2) + '%')],
+        ['Estimated Cash Adoption %', pdfSafe(r.cashPct + '%')],
+        ['Average Transaction Size',  pdfSafe(fmtD(r.avgTx))],
+        ['Program Monthly Cost',      '$39.00'],
+        ['Program Annual Cost',       '$468.00'],
+        ['Per-Transaction Fee',       pdfSafe(fmtD(r.perTxFee))],
+        ['Break-Even Cash %',         pdfSafe(fmtP(r.breakEvenPct))],
+        [r.benchmark.label + ' Industry Benchmark', pdfSafe(r.benchmarkRate.toFixed(2) + '%')]
+      ];
+
+      inputRows.forEach(([lbl, val], i) => {
+        doc.setFillColor(...(i % 2 === 0 ? WHITE : [248, 248, 245]));
+        doc.rect(ML, y, CW, 14, 'F');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...MID);
+        doc.text(pdfSafe(lbl), ML + 5, y + 9.5);
+        doc.setTextColor(...DARK);
+        doc.setFont('helvetica', 'bold');
+        doc.text(pdfSafe(val), MR - 5, y + 9.5, { align: 'right' });
+        doc.setDrawColor(...LGRAY);
+        doc.setLineWidth(0.3);
+        doc.line(ML, y + 14, MR, y + 14);
+        y += 14;
+      });
+      y += 14;
+
+      // Data Sources
+      y = sectionTitle('Data Sources', y);
+
+      const sources = [
+        'Merchants Payments Coalition (2024): $148.5 billion in total U.S. merchant card processing fees annually.',
+        'The Motley Fool / NerdWallet: Average credit card processing rates range from 1.5% to 3.5% depending on card type and processor.',
+        'Visa / Mastercard published interchange data: Average effective rate approximately 2.35% across all card types.',
+        'Industry benchmark rates sourced from merchant services industry reports: Retail 2.20%, Restaurant 2.50%, Service 2.80%, Healthcare 2.60%, Other 2.75%.'
+      ];
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(...MID);
+      sources.forEach((src, i) => {
+        const lines = doc.splitTextToSize(pdfSafe((i + 1) + '. ' + src), CW - 6);
+        doc.text(lines, ML + 6, y);
+        y += lines.length * 11.5 + 3;
+      });
+      y += 10;
+
+      // Disclaimer
+      const discText = pdfSafe(
+        'DISCLAIMER: This calculator is for informational and educational purposes only. Results are estimates based on ' +
+        'user-provided inputs and publicly available industry benchmarks. Actual savings will vary based on your specific ' +
+        'payment processor contract, customer behavior, transaction mix, and program implementation. This is not financial, ' +
+        'legal, or tax advice. Cash discount and dual pricing programs must comply with Visa, Mastercard, Discover, and ' +
+        'Amex card network rules and applicable state laws. Consult your payment processor and legal advisors before ' +
+        'making changes to your payment processing setup. TMS Solutions Group is not responsible for decisions made based on these estimates.'
+      );
+      const discLines = doc.splitTextToSize(discText, CW - 24);
+      doc.setFillColor(245, 243, 238);
+      doc.roundedRect(ML, y, CW, discLines.length * 11 + 20, 4, 4, 'F');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...MID);
+      doc.text(discLines, ML + 12, y + 14);
+      y += discLines.length * 11 + 30;
+
+      // CTA block
+      doc.setFillColor(...GOLD);
+      doc.roundedRect(ML, y, CW, 50, 4, 4, 'F');
+      doc.setFont('times', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(...WHITE);
+      doc.text(pdfSafe('Ready to start saving on processing fees?'), PW / 2, y + 18, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text(pdfSafe('Contact TMS Solutions Group: tom@tms-solutions-group.com  |  386-387-8620'), PW / 2, y + 35, { align: 'center' });
+
+      drawFooter(2);
+
+      // Save PDF
+      const safeBiz = pdfSafe(r.biz || 'Report').replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      doc.save(pdfSafe('TMS-Cash-Discount-Calculator-' + safeBiz + '.pdf'));
+
+    } catch (err) {
+      console.error('PDF generation error:', err);
+      alert('PDF generation failed: ' + err.message);
+    }
+  }
+</script>
+</body>
+</html>
