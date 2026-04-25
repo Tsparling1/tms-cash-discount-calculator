@@ -25,11 +25,12 @@
     body { background: var(--cream); font-family: 'Inter', sans-serif; color: var(--dark); min-height: 100vh; display: flex; flex-direction: column; }
 
     /* HEADER */
-    header { background: #FAF6EE; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+    header { background: #1a1a1a; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
     header .brand { color: #fff; font-family: 'Playfair Display', serif; font-size: 1.1rem; letter-spacing: 0.02em; }
     header .brand span { color: var(--gold-light); }
+    .brand-logo-wrap { background: #fff; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; }
     .brand-logo { height: 44px; width: auto; display: block; object-fit: contain; }
-    header .contact { color: #666; font-size: 0.75rem; text-align: right; line-height: 1.5; }
+    header .contact { color: #ccc; font-size: 0.75rem; text-align: right; line-height: 1.5; }
 
     /* MAIN WRAPPER */
     main { flex: 1; max-width: 820px; margin: 0 auto; width: 100%; padding: 32px 20px 48px; }
@@ -171,7 +172,7 @@
 <body>
 
 <header>
-  <img src="/images/tms-logo.png" alt="TMS Solutions Group" class="brand-logo" />
+  <div class="brand-logo-wrap"><img src="/images/tms-logo.png" alt="TMS Solutions Group" class="brand-logo" /></div>
   <div class="contact">tom@tms-solutions-group.com | tms-solutions-group.com | 386-387-8620</div>
 </header>
 
